@@ -1,0 +1,27 @@
+name:                incidental-detail
+version:             0.1.0.0
+license:             MIT
+license-file:        LICENSE
+author:              Timothy Jones
+maintainer:          Timothy Jones <git@zimothy.com>
+copyright:           (c) 2013
+category:            Graphics
+build-type:          Simple
+cabal-version:       >=1.8
+synopsis:
+  Intuitive synthesis of incidental detail using higher-order functions.
+
+flag development
+  description: Disables warnings as errors, doesn't optimize compilation
+  default:     False
+
+executable incidental-detail
+  hs-source-dirs: src
+  main-is:        Main.hs
+  build-depends:  base ==4.6.*
+
+  if flag(development)
+    ghc-options: -Wall
+  else
+    ghc-options: -Wall -Werrer -O2 -funbox-strict-fields
+
