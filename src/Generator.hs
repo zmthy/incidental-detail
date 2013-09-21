@@ -6,6 +6,8 @@ import Testing
 import Types
 import Hastwix
 
+import Data.List
+
 --generate (poly)
 --    fn = randomLocationSelectionFn()
 --    selectedLocations = fn(poly)
@@ -42,22 +44,33 @@ data Branch = Branch
 --    generateNewLocations
 --    branch(locations)
 
+tDiff :: (Point, Point) -> (Point, Point) -> Bool
+tDiff (a, _) (b, _) = dx && dy && dz
+    where dx = abs ((px a) - (px b)) < t
+          dy = abs ((py a) - (py b)) < t
+          dz = abs ((pz a) - (pz b)) < t
+          t  = 0.0001
+
+unique :: [(Point, Point)] -> [(Point, Point)]
+unique xs = nubBy tDiff xs
+
 --createBranch loc parent = Branch node parent (expand node)
-createBranch :: (Polygon -> Polygon) -> Point -> Branch -> Branch
-createBranch fn loc parent = Branch newNode parent []
-    where newNode  = fn $ movePoly loc (Polygon locs tForm up right pType)
-          locs     = genSphere 1 4
-          tForm    = dot (identity 4) (transform (node parent))
+createBranch :: Matrix Double -> (Point, Point) -> Branch -> Branch
+createBranch m loc parent = Branch newNode parent []
+    where newNode  = (Polygon locs tForm up right pType)
+          locs     = unique $ genSphere 1 4
+          --tForm    = dot (moveMtx (fst loc)) (dot (orientMtx (snd loc) up) (dot m (identity 4)))
+          tForm    = dot (dot (moveMtx (fst loc)) (dot (orientMtx (snd loc) up) m)) (transform (node parent))
           up       = (0, 1, 0)
           right    = (1, 0, 0)
           pType    = sphere
 
 expand :: Branch -> [Branch]
-expand parent = map (\loc -> createBranch (scalePoly (0.25, 0.6, 0.25)) loc parent) (selectLocations (node parent))
+expand parent = map (\loc -> createBranch (scaleMtx (0.2, 0.6, 0.2)) loc parent) (selectLocations (node parent))
 
 
-selectLocations :: Polygon -> [Point]
-selectLocations p = take 8 (locations p)
+selectLocations :: Polygon -> [(Point, Point)]
+selectLocations p = locations p
 
 
 recur :: Int -> Branch -> [Branch]

@@ -20,7 +20,7 @@ module Hastwix (
   cofactors,
 
   -- Operations
-  mult, transpose, dot, inverse)
+  add, mult, transpose, dot, inverse)
 where
 
 import qualified Matwix as M
@@ -140,6 +140,9 @@ rowExchange a b arrA = setRow a rB (setRow b rA arrA)
 --------------------------------------------------------------------------------
 -- Matrix Operations
 --------------------------------------------------------------------------------
+
+add :: Num a => Matrix a -> Matrix a -> Matrix a
+add (Matrix a1 _) (Matrix a2 dim) = Matrix (zipWith (+) a1 a2) dim
 
 mult :: Num a => a -> Matrix a -> Matrix a
 mult scalar (Matrix arr dim) = Matrix (map (scalar*) arr) dim
