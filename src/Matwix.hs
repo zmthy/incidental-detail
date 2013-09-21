@@ -9,7 +9,7 @@
 
 module Matwix where
 
-import Utils
+import MatwixUtils
 
 --------------------------------------------------------------------------------
 -- Types

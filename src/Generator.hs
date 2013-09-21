@@ -7,7 +7,6 @@ module Generator where
 import Data.List
 
 -- | Source
-import Testing
 import Types
 import Hastwix
 import Vectwix

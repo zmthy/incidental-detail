@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- | Incidental Detail, a library for generating details of the incidental kind.
 
-module Utils where
+module MatwixUtils where
 
 --------------------------------------------------------------------------------
 

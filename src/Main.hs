@@ -14,9 +14,9 @@ import Text.Printf
 -- | Source
 import Maya
 import Generator
-import Testing
 import Types
 import Hastwix
+import Vectwix
 --------------------------------------------------------------------------------
 
 

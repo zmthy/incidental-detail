@@ -5,6 +5,7 @@ module Types where
 
 -- | Source
 import Hastwix
+import Vectwix
 --------------------------------------------------------------------------------
 
 
@@ -14,37 +15,6 @@ cuboid     = "polyCube"
 sphere     = "polySphere"
 cylinder   = "polyCylinder"
 
---------------------------------------------------------------------------------
--- | Point, and a collection of functions because I used to OOP.
-type Point = (Double, Double, Double)
-
-px :: Point -> Double
-px (x, _, _) = x
-
-py :: Point -> Double
-py (_, y, _) = y
-
-pz :: Point -> Double
-pz (_, _, z) = z
-
-cross :: Point -> Point -> Point
-cross a b = (x, y, z)
-  where x = (py a) * (pz b) - (py b) * (pz a)
-        y = (px b) * (pz a) - (px a) * (pz b)
-        z = (px a) * (py b) - (py a) * (px b)
-
-dotP :: Point -> Point -> Double
-dotP a b = (px a) * (px b) + (py a) * (py b) + (pz a) * (pz b)
-
-mag :: Point -> Double
-mag v = sqrt $ px v ** 2 + py v ** 2 + pz v ** 2
-
-norm :: Point -> Point
-norm v = (x, y, z)
-  where x = (px v) / m
-        y = (py v) / m
-        z = (pz v) / m
-        m = mag v
 
 --------------------------------------------------------------------------------
 -- | A pair of points representing a 3D position and normal vector.

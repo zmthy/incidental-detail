@@ -24,7 +24,7 @@ module Hastwix (
 where
 
 import qualified Matwix as M
-import Utils
+import MatwixUtils
 
 
 --------------------------------------------------------------------------------

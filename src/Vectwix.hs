@@ -4,10 +4,55 @@
 module Vectwix where
 
 -- Source
-import Types
 import Hastwix
 --------------------------------------------------------------------------------
 
+
+--------------------------------------------------------------------------------
+-- | Point, and a collection of utility functions.
+type Point = (Double, Double, Double)
+
+--------------------------------------------------------------------------------
+-- | X component of a point
+px :: Point -> Double
+px (x, _, _) = x
+
+--------------------------------------------------------------------------------
+-- | Y component of a point
+py :: Point -> Double
+py (_, y, _) = y
+
+--------------------------------------------------------------------------------
+-- | Z component of a point
+pz :: Point -> Double
+pz (_, _, z) = z
+
+--------------------------------------------------------------------------------
+-- | Cross product of two points.
+cross :: Point -> Point -> Point
+cross a b = (x, y, z)
+  where x = (py a) * (pz b) - (py b) * (pz a)
+        y = (px b) * (pz a) - (px a) * (pz b)
+        z = (px a) * (py b) - (py a) * (px b)
+
+--------------------------------------------------------------------------------
+-- | Dot product of two points.
+dotP :: Point -> Point -> Double
+dotP a b = (px a) * (px b) + (py a) * (py b) + (pz a) * (pz b)
+
+--------------------------------------------------------------------------------
+-- | Magnitude of a point (or technically vector)
+mag :: Point -> Double
+mag v = sqrt $ px v ** 2 + py v ** 2 + pz v ** 2
+
+--------------------------------------------------------------------------------
+-- | Normalizes a point (or technically vector)
+norm :: Point -> Point
+norm v = (x, y, z)
+  where x = (px v) / m
+        y = (py v) / m
+        z = (pz v) / m
+        m = mag v
 
 --------------------------------------------------------------------------------
 -- | Converts a point to column matrix
@@ -49,15 +94,12 @@ addHomo (Matrix m dim) = Matrix [ m !! 0, m !! 1, m !! 2, 0,
 --------------------------------------------------------------------------------
 -- | Generates a rotation matrix who will transform the given point a to b.
 rotMtxBetween :: Point -> Point -> Matrix Double
-rotMtxBetween a b = add eye (add (mult sinScalar skewed) cosEq
+rotMtxBetween a b = add eye (add sinEq cosEq)
   where eye         = (identity 3)
-        cosEq       = mult (1 - (cos angle)) skewSquared
-        sinScalar   = sin angle
-        cosScalar   = 
-        skewSquared = (dot skewed skewed)
-        skewed      = skewAxis axis
+        sinEq       = mult (sin angle) skewed
+        cosEq       = mult (1 - (cos angle)) (dot skewed skewed)
+        skewed      = skewAxis (axisBetween a b)
         angle       = angleBetween  a b
-        axis        = axisBetween a b
 
 --------------------------------------------------------------------------------
 -- | Makes a translation matrix given a point
