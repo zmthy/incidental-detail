@@ -30,11 +30,11 @@ showTriple p = putStrLn $ printf "x:%2.2f, y:%2.2f, z:%2.2f" (px p) (py p) (pz p
 main :: IO ()
 main = do
     -- Make the first branch of the pattern.
-    let org = updateLocs $ Polygon (unique (genSphere 1 4)) (identity 4) (0, 1, 0) (1, 0, 0) sphere
+    let org = Polygon (unique (genSphere 1 4)) (identity 4) (0, 1, 0) (1, 0, 0) sphere
     let b1 = Branch org Empty []
 
     -- Recusrively expand it.
-    let pSet = map (\b -> (node b)) (recur 5 b1)
+    let pSet = map (\b -> (node b)) (recur 4 b1)
 
     -- Write the python script
     let title = "basic"
