@@ -8,6 +8,6 @@ import basic
 def createScene(fileName):
     pmc.newFile(new = True, force = True)
     basic.generate()
-    pmc.saveAs("/Volumes/Scratch/Workflow/incidental-detail/src/test.ma", type = "mayaAscii")
+    pmc.saveAs("/Volumes/Scratch/Workflow/incidental-detail/build/test.ma", type = "mayaAscii")
 
 createScene("test")
