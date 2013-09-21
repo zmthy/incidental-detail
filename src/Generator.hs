@@ -10,11 +10,12 @@ import Data.List
 import Testing
 import Types
 import Hastwix
+import Vectwix
 --------------------------------------------------------------------------------
 
 
 --------------------------------------------------------------------------------
---|
+-- |
 data Branch = Branch
     { node        :: Polygon
     , parent      :: Branch
@@ -41,7 +42,7 @@ createBranch :: Matrix Double -> (Point, Point) -> Branch -> Branch
 createBranch m loc parent = Branch newNode parent []
     where newNode  = (Polygon locs tForm up right pType)
           locs     = unique $ genSphere 1 4
-          tForm    = dot (dot (moveMtx (fst loc)) (dot (orientMtx (snd loc) up) m)) (transform (node parent))
+          tForm    = dot (dot (tMtx (fst loc)) (dot (rMtx (snd loc) up) m)) (transform (node parent))
           up       = (0, 1, 0)
           right    = (1, 0, 0)
           pType    = sphere
@@ -49,7 +50,7 @@ createBranch m loc parent = Branch newNode parent []
 --------------------------------------------------------------------------------
 -- | Prints out a triple.
 expand :: Branch -> [Branch]
-expand parent = map (\loc -> createBranch (scaleMtx (0.2, 0.6, 0.2)) loc parent) (selectLocations (node parent))
+expand parent = map (\loc -> createBranch (sMtx (0.2, 0.6, 0.2)) loc parent) (selectLocations (node parent))
 
 --------------------------------------------------------------------------------
 -- | Prints out a triple.
