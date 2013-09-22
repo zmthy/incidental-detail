@@ -21,7 +21,7 @@ mtxArrFromPoly p = (components . transpose . transform) p
 -- | A named cube, translated to the given position
 makePoly :: Polygon -> [String]
 makePoly p = makeShape ++ setXForm
-    where makeShape = [printf "cmds.%s()" (pType p)]
+    where makeShape = [printf "cmds.%s()" (mayaNameFromPolyType $ polyType p)]
           setXForm  = [printf "cmds.xform(m = %s)" $ show (mtxArrFromPoly p)]
 
 --------------------------------------------------------------------------------

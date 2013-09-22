@@ -79,9 +79,9 @@ axisBetween vA vB
 --------------------------------------------------------------------------------
 -- | Creates a skew-symmetric cross-product matrix from the given axis.
 skewAxis :: Point -> Matrix Double
-skewAxis a = Matrix [     0,  pz a, -py a,
-                      -pz a,     0,  px a,
-                       py a, -px a,     0 ] (3, 3)
+skewAxis a = Matrix [     0,  -pz a, py a,
+                       pz a,     0, -px a,
+                      -py a,  px a,     0 ] (3, 3)
 
 --------------------------------------------------------------------------------
 -- | Adds homogenous co-ordinates to a 3x3 rotation matrix
