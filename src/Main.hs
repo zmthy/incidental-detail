@@ -33,8 +33,15 @@ main = do
     let org = Polygon PolySphere (identity 4)
     let b1 = Branch org Empty []
 
+    -- Give the recursion instructions
+    let struct = [[(1, PolyCylinder), (2, PolyCube)],
+                  [(2, PolySphere), (0, PolySphere)],
+                  [(1, PolyCube)],
+                  [(1, PolySphere), (2, PolySphere)],
+                  [(0, PolyCube)]]
+
     -- Recusrively expand it.
-    let pSet = map (\b -> (node b)) (recur 4 b1)
+    let pSet = map (\b -> (node b)) (recur struct b1)
 
     -- Write the python script
     let title = "basic"

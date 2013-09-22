@@ -21,8 +21,8 @@ data PolyType = PolyCube | PolySphere | PolyCylinder deriving (Eq, Show, Enum)
 -- | Gives a polytype from an integer
 pickPolyFromId :: Int -> PolyType
 pickPolyFromId id
-    | id == 0 = PolySphere
-    | id == 1 = PolyCube
+    | id == 0 = PolyCube
+    | id == 1 = PolySphere
     | id == 2 = PolyCylinder
     | otherwise = PolyCube
 
@@ -32,7 +32,7 @@ mayaCmdFromPolyType :: PolyType -> String
 mayaCmdFromPolyType p
     | p == PolyCube = "cmds.polyCube(w = 2, h = 2, d = 2)" 
     | p == PolySphere = "cmds.polySphere(r = 1)" 
-    | p == PolyCylinder = "cmds.polyCylinder(r = 1)" 
+    | p == PolyCylinder = "cmds.polyCylinder(r = 1, h = 2)"
 
 --------------------------------------------------------------------------------
 -- | Stores a net of locations, a 3D transform, and a few other bits.
