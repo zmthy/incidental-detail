@@ -34,7 +34,7 @@ main = do
     let b1 = Branch org Empty []
 
     -- Recusrively expand it.
-    let pSet = map (\b -> (node b)) (recur 5 b1)
+    let pSet = map (\b -> (node b)) (recur 4 b1)
 
     -- Write the python script
     let title = "basic"

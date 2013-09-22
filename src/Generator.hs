@@ -19,31 +19,30 @@ data Branch = Branch
     , children    :: [Polygon]
     } | Empty
 
-
-
 --------------------------------------------------------------------------------
 -- | Prints out a triple.
-createBranch :: Location -> Branch -> Branch
-createBranch loc parent = Branch newNode parent []
-    where newNode  = Polygon PolySphere (dot (transform (node parent)) rts)
-          rts      = dot t (dot r s)
+createBranch :: Int -> Location -> Branch -> Branch
+createBranch polyID loc parent = Branch newNode parent []
+    where newNode  = Polygon pType (dot (transform (node parent)) trs)
+          trs      = dot t (dot r s)
           t        = tMtx (fst loc)
           r        = rMtx up (snd loc)
-          s        = sMtx (0.3, 0.3, 0.3)
+          s        = sMtx (0.3, 0.7, 0.3)
           up       = (0, 1, 0)
+          pType    = pickPolyFromId polyID
 
 
 --------------------------------------------------------------------------------
 -- | Creates a branch at each of the given branchs locations
-expand :: Branch -> [Branch]
-expand parent = map (\loc -> createBranch loc parent) locs
-  where locs = selectLocations (node parent)
+expand :: Int -> Int -> Branch -> [Branch]
+expand selectID polyID parent = map (\loc -> createBranch polyID loc parent) locs
+  where locs = selectLocations selectID (node parent)
 
 --------------------------------------------------------------------------------
 -- | Prints out a triple.
 recur :: Int -> Branch -> [Branch]
 recur 0 b = []
-recur d b = b : (concat $ map (\br -> recur (d-1) br) (expand b))
+recur d b = b : (concat $ map (\br -> recur (d-1) br) (expand (d-1) (d-1) b))
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------

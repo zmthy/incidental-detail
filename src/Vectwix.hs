@@ -73,7 +73,7 @@ angleBetween vA vB = acos $ dotP (norm vA) (norm vB)
 -- | Normalized cross product between two vectors (axis of rotation)
 axisBetween :: Point -> Point -> Point
 axisBetween vA vB
-    | (cross vA vB) == (0, 0, 0) = (1, 0, 0)
+    | (cross vA vB) == (0, 0, 0) = (0, 0, 1)
     | otherwise = norm $ cross vA vB
 
 --------------------------------------------------------------------------------
@@ -84,14 +84,6 @@ skewAxis a = Matrix [     0,  -pz a, py a,
                       -py a,  px a,     0 ] (3, 3)
 
 --------------------------------------------------------------------------------
--- | Adds homogenous co-ordinates to a 3x3 rotation matrix
-addHomo :: Matrix Double -> Matrix Double
-addHomo (Matrix m dim) = Matrix [ m !! 0, m !! 1, m !! 2, 0, 
-                                  m !! 3, m !! 4, m !! 5, 0,
-                                  m !! 6, m !! 7, m !! 8, 0, 
-                                  0, 0, 0, 1 ] (4, 4)
-
---------------------------------------------------------------------------------
 -- | Generates a rotation matrix who will transform the given point a to b.
 rotMtxBetween :: Point -> Point -> Matrix Double
 rotMtxBetween a b = add eye (add sinEq cosEq)
@@ -100,6 +92,16 @@ rotMtxBetween a b = add eye (add sinEq cosEq)
         cosEq       = mult (1 - (cos angle)) (dot skewed skewed)
         skewed      = skewAxis (axisBetween a b)
         angle       = angleBetween  a b
+
+--------------------------------------------------------------------------------
+-- | Adds homogenous co-ordinates to a 3x3 rotation matrix
+addHomo :: Matrix Double -> Matrix Double
+addHomo (Matrix m dim) = Matrix [ m !! 0, m !! 1, m !! 2, 0, 
+                                  m !! 3, m !! 4, m !! 5, 0,
+                                  m !! 6, m !! 7, m !! 8, 0, 
+                                  0, 0, 0, 1 ] (4, 4)
+
+
 
 --------------------------------------------------------------------------------
 -- | Makes a translation matrix given a point
@@ -113,7 +115,6 @@ tMtx pos = Matrix [ 1, 0, 0, px pos,
 -- | Makes a rotation matrix given a point
 rMtx :: Point -> Point -> Matrix Double
 rMtx a b = addHomo $ rotMtxBetween a b
-
 
 --------------------------------------------------------------------------------
 -- | Makes a scale matrix given a point
