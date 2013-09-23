@@ -30,13 +30,13 @@ showTriple p = putStrLn $ printf "x:%2.2f, y:%2.2f, z:%2.2f" (px p) (py p) (pz p
 main :: IO ()
 main = do
     -- Make the first branch of the pattern.
-    let org = Polygon PolySphere (identity 4) (identity 4)
+    let org = Polygon PolySphere (tMtx (10, 0, 0)) (sMtx (0.1, 1,1))
     let b1 = Branch org Empty []
 
     -- Give the recursion instructions
-    let struct = [[(1, PolyCylinder, (2, 0.1, 2))],
-                  [(2, PolySphere, (1, 1, 1))],
-                  [(0, PolyCube, (1, 1, 1))]]
+    let struct = [[(1, PolyCylinder, (0.3, 0.3, 0.3), (2, 0.1, 2))],
+                  [(2, PolySphere, (0.3, 0.3, 0.3), (1, 1, 1))],
+                  [(0, PolyCube, (0.3, 0.3, 0.3), (1, 1, 1))]]
 
     -- Recusrively expand it.
     let pSet = map (\b -> (node b)) (recur struct b1)
