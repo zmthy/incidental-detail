@@ -39,6 +39,7 @@ mayaCmdFromPolyType p
 data Polygon = Polygon
     { polyType    :: PolyType
     , transform   :: Matrix Double
+    , pScale      :: Matrix Double
     }
 
 --------------------------------------------------------------------------------

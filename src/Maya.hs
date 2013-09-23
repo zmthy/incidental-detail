@@ -17,12 +17,15 @@ import Hastwix
 mtxArrFromPoly :: Polygon -> [Double]
 mtxArrFromPoly p = (components . transpose . transform) p
 
+dArrFromMtx :: Matrix Double -> [Double]
+dArrFromMtx p = (components . transpose) p
+
 --------------------------------------------------------------------------------
 -- | A named cube, translated to the given position
 makePoly :: Polygon -> [String]
 makePoly p = makeShape ++ setXForm
     where makeShape = [printf (mayaCmdFromPolyType $ polyType p)]
-          setXForm  = [printf "cmds.xform(m = %s)" $ show (mtxArrFromPoly p)]
+          setXForm  = [printf "cmds.xform(m = %s)" $ show $ dArrFromMtx (dot (transform p) (pScale p))]
 
 --------------------------------------------------------------------------------
 -- | Concatenate commands to file string

@@ -21,28 +21,28 @@ data Branch = Branch
 
 --------------------------------------------------------------------------------
 -- | Prints out a triple.
-createBranch :: PolyType -> Location -> Branch -> Branch
-createBranch nPolyType loc parent = Branch newNode parent []
-    where newNode  = Polygon pType (dot (transform (node parent)) trs)
+createBranch :: PolyType -> Location -> Point -> Branch -> Branch
+createBranch nPolyType loc pScale parent = Branch newNode parent []
+    where newNode  = Polygon pType (dot (transform (node parent)) trs) (sMtx pScale)
           trs      = dot t (dot r s)
           t        = tMtx (fst loc)
           r        = rMtx up (snd loc)
-          s        = sMtx (0.1, 0.6, 0.1)
+          s        = sMtx (0.3, 0.3, 0.3)
           up       = (0, 1, 0)
           pType    = nPolyType
 
 --------------------------------------------------------------------------------
 -- | Creates a branch at each of the given branchs locations
-expand :: Int -> PolyType -> Branch -> [Branch]
-expand selectID nPolyType parent = map (\loc -> createBranch nPolyType loc parent) locs
-  where locs = selectLocations selectID (node parent)
+expand :: Int -> PolyType -> Point -> Branch -> [Branch]
+expand selectID nPolyType pS parent = map (\loc -> createBranch nPolyType loc pS parent) locs
+  where locs = transformLocs (selectLocations selectID (node parent)) (pScale (node parent))
 
 --------------------------------------------------------------------------------
 -- | Prints out a triple.
-recur :: [[(Int, PolyType)]] -> Branch -> [Branch]
+recur :: [[(Int, PolyType, Point)]] -> Branch -> [Branch]
 recur [] _ = []
 recur (i:is) b = b : (concat $ map (\br -> recur is br) branches)
-  where branches = concat $ map (\(selId, pType) -> expand selId pType b) i
+  where branches = concat $ map (\(selId, pType, pScale) -> expand selId pType pScale b) i
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
