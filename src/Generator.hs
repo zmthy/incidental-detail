@@ -13,6 +13,14 @@ import LocationSelection
 
 --------------------------------------------------------------------------------
 -- |
+
+
+data BranchStump = BranchStump
+    { 
+      expansion :: [Int],
+      childs :: [BranchStump]
+    }
+
 data Branch = Branch
     { node        :: Polygon
     , parent      :: Branch
@@ -21,28 +29,27 @@ data Branch = Branch
 
 --------------------------------------------------------------------------------
 -- | Prints out a triple.
-createBranch :: PolyType -> Location -> Point -> Point -> Branch -> Branch
-createBranch nPolyType loc gScale pScale parent = Branch newNode parent []
+createBranch :: PolyType -> Location -> Point -> Point -> Point-> Branch -> Branch
+createBranch nPolyType loc gScale pScale up parent = Branch newNode parent []
     where newNode  = Polygon pType (dot (transform (node parent)) trs) (sMtx pScale)
           trs      = dot t (dot r s)
           t        = tMtx (fst loc)
           r        = rMtx up (snd loc)
           s        = sMtx gScale
-          up       = (0, 1, 0)
           pType    = nPolyType
 
 --------------------------------------------------------------------------------
 -- | Creates a branch at each of the given branchs locations
-expand :: Int -> PolyType -> Point -> Point -> Branch -> [Branch]
-expand selectID nPolyType gS pS parent = map (\loc -> createBranch nPolyType loc gS pS parent) locs
-  where locs = transformLocs (selectLocations selectID (node parent)) (pScale (node parent))
+expand :: Int -> PolyType -> Point -> Point -> Point -> [Int] -> [Double] -> Branch -> [Branch]
+expand selectID nPolyType gS pS up ints doubs parent = map (\loc -> createBranch nPolyType loc gS pS up parent) locs
+  where locs = transformLocs (selectLocations selectID (node parent) ints doubs) (pScale (node parent))
 
 --------------------------------------------------------------------------------
 -- | Prints out a triple.
-recur :: [[(Int, PolyType, Point, Point)]] -> Branch -> [Branch]
+recur :: [[(Int, PolyType, Point, Point, Point, [Int], [Double])]] -> Branch -> [Branch]
 recur [] _ = []
 recur (i:is) b = b : (concat $ map (\br -> recur is br) branches)
-  where branches = concat $ map (\(selId, pType, gScale, pScale) -> expand selId pType gScale pScale b) i
+  where branches = concat $ map (\(selId, pType, gScale, pScale, up, ints, doubs) -> expand selId pType gScale pScale up ints doubs b) i
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------

@@ -79,7 +79,7 @@ vertLoop polar incs = map (\a -> fn a) [0 .. (fromIntegral incs) - 1]
   where fn a = locOnSphere 1 polar (twopi / (fromIntegral incs) * a)
 
 horiLoop :: Double -> Int -> [Location]
-horiLoop polar incs = transformLocs locs (rMtx (0, 1, 0) (0, 0, 1))
+horiLoop polar incs = transformLocs locs (rMtx (0, 0, 1) (0, 1, 0))
   where locs = vertLoop polar incs
 
 cHoriLoop :: Double -> Int -> [Location]
@@ -114,20 +114,17 @@ safenLocs locs = map safenLoc locs
 
 --------------------------------------------------------------------------------
 -- | Selects all locations
-pickSelFromId :: PolyType -> Int -> [Location]
-pickSelFromId pType selectId 
-    | (pType == PolyCube     && selectId == 0) = safenLocs $ opposites 1 0 0 -- cube
-    | (pType == PolyCube     && selectId == 1) = safenLocs $ opposites 0 1 0 -- cube
-    | (pType == PolyCube     && selectId == 2) = safenLocs $ opposites 0 0 1 -- cube
-    | (pType == PolySphere   && selectId == 0) = safenLocs $ opposites 1 1 1                -- sphere
-    | (pType == PolySphere   && selectId == 1) = safenLocs $ horiLoop (twopi * 0.5 * 0.5) 6 -- sphere
-    | (pType == PolySphere   && selectId == 2) = safenLocs $ vertLoop (twopi * 0.5 * 0.5) 6 -- sphere
-    | (pType == PolyCylinder && selectId == 0) = safenLocs $ opposites 1 1 1     -- cylinder
-    | (pType == PolyCylinder && selectId == 1) = safenLocs $ cHoriLoop 0.7 16    -- cylinder
-    | (pType == PolyCylinder && selectId == 2) = safenLocs $ cHoriLoop (-0.45) 4 -- cylinder
+pickSelFromId :: PolyType -> Int -> [Int] -> [Double] -> [Location]
+pickSelFromId pType selectId ints dubs
+    | (pType == PolyCube     && selectId == 0) = safenLocs $ opposites (ints !! 0) (ints !! 1) (ints !! 2) -- cube
+    | (pType == PolySphere   && selectId == 0) = safenLocs $ opposites (ints !! 0) (ints !! 1) (ints !! 2) -- sphere
+    | (pType == PolySphere   && selectId == 1) = safenLocs $ vertLoop (dubs !! 0) (ints !! 0) -- sphere
+    | (pType == PolySphere   && selectId == 2) = safenLocs $ horiLoop (dubs !! 0) (ints !! 0) -- sphere
+    | (pType == PolyCylinder && selectId == 0) = safenLocs $ opposites (ints !! 0) (ints !! 1) (ints !! 2)     -- cylinder
+    | (pType == PolyCylinder && selectId == 1) = safenLocs $ cHoriLoop (dubs !! 0) (ints !! 0) -- cylinder
     | otherwise = []
 
 --------------------------------------------------------------------------------
 -- | Selects all locations
-selectLocations :: Int -> Polygon -> [Location]
-selectLocations selectID p = unique (pickSelFromId (polyType p) selectID)
+selectLocations :: Int -> Polygon -> [Int] -> [Double] -> [Location]
+selectLocations selectID p ints dubs = unique (pickSelFromId (polyType p) selectID ints dubs)
