@@ -1,56 +1,45 @@
---------------------------------------------------------------------------------
--- | Incidental Detail, a library for generating details of the incidental kind.
--- |
--- | Victoria University of Welling, ECS
--- |    Richard Roberts
--- |    Timothy Jones
--- |    John Lewis
+------------------------------------------------------------------------------
+-- Incidental Detail, a library for generating details of the incidental kind.
+--
+-- Victoria University of Welling, ECS
+--    Richard Roberts
+--    Timothy Jones
+--    John Lewis
+------------------------------------------------------------------------------
 
 module Main where
 
--- | Standard
-import Text.Printf
+-- Standard
+import Control.Applicative
+import Data.Tree
 
--- | Source
-import Maya
-import Generator
-import Types
-import Hastwix
-import Vectwix
---------------------------------------------------------------------------------
+-- Source
+import DetailGen
+import PointSelect
 
+-- Get the current label.
+getLabel :: Tree Detail -> Detail
+getLabel = rootLabel
 
---------------------------------------------------------------------------------
--- | Prints out a triple.
-showTriple :: Point -> IO ()
-showTriple p = putStrLn $ printf "x:%2.2f, y:%2.2f, z:%2.2f" (px p) (py p) (pz p)
+getSub :: Tree Detail -> Forest Detail
+getSub = subForest
 
---------------------------------------------------------------------------------
--- | Writes a python script based on the generated pattern.
-main :: IO ()
-main = do
-    -- Make the first branch of the pattern.
-    let org = Polygon PolyCylinder (tMtx (0, 0, 0)) (sMtx (1, 1, 1))
-    let b1 = Branch org Empty []
+unwrapTree :: Int -> Tree Detail -> IO ()
+unwrapTree l x = do
+    let cLabel = getLabel x
+    let cSub =  getSub x
 
-    -- Give the recursion instructions
-    --let fake = BranchStump (0, PolyCube, (0.3, 0.3, 0.3), (0.4, 0.05, 1.2), (0, 0, 1), [1,1,1], [0.5]) []
+    putStrLn $ replicate (l * 2) ' ' ++ show cLabel
 
-    let cS2 = BranchStump (0, PolyCube, (0.3, 0.3, 0.3), (1,1,1), (0, 1, 0), [1, 1, 1], []) []
-    let cS1 = BranchStump (1, PolyCube, (0.3, 0.3, 0.3), (1,1,1), (1, 0, 0), [8], [0.99]) []
-
-    let bS1 = BranchStump (0, PolyCylinder, (0.3, 0.3, 0.3), (1,1,1), (0, 1, 0), [0, 1, 0], []) [cS2, cS1]
-    let bS2 = BranchStump (0, PolyCylinder, (0.3, 0.3, 0.3), (1,1,1), (0, 1, 0), [0, 0, 1], []) [cS2]
-
-    -- Recusrively expand it.
-    let pSet = map (\b -> (node b)) (recur [bS1, bS2] b1)
-
-    -- Write the python script
-    let title = "basic"
-    let cmds = polySetToCmds pSet
-    writeFile (title ++ ".py") $ (preamble title ++ cmds)
-
+    mapM_ (unwrapTree (l+1)) cSub
     return ()
 
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+main :: IO ()
+main = do
+    let segment = do { detail Cylinder (CubeFaces xAxis) 0.5 ; branch [pure 0.25, pure 0.5, pure 0.7]}
+    let cubeSegment = do { height <- segment ; detail Cube (CylinderLoop 4 height) 0.2 ; branch [pure 0.2]}
+    let cubeSegment2 = do { height2 <- cubeSegment ; detail Cube (CylinderLoop 4 height2) 0.2 }
+    unwrapTree 0 $ head (runDetailGen cubeSegment2)
+
+------------------------------------------------------------------------------
