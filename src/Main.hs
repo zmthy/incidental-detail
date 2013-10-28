@@ -17,18 +17,18 @@ import Data.Matrix
 -- Source
 import DetailGen
 import PointSelect
+import Selection
 import Transform
-
-
-
-------------------------------------------------------------------------------
-getPoints :: Detail -> [Point]
-getPoints (Detail p _ _) = p
 
 
 ------------------------------------------------------------------------------
 getShape :: Detail -> Shape
-getShape (Detail _ s _) = s
+getShape (Detail s _ _) = s
+
+
+------------------------------------------------------------------------------
+getPoints :: Detail -> [Point]
+getPoints (Detail _ p _) = toPoints p
 
 
 ------------------------------------------------------------------------------
@@ -48,37 +48,35 @@ getSub = subForest
 ------------------------------------------------------------------------------
 expand :: Point -> Matrix Double -> Int -> Forest Detail -> IO ()
 expand p pMtx l sub = do
-	let newM = dotM pMtx
-	mapM_ (unwrapTree (l + 1)) sub
+	let newM = dotM pMtx (identity 4)
+	mapM_ (unwrapTree newM (l + 1)) sub
 	return ()
 
 
 ------------------------------------------------------------------------------
 unwrapTree :: Matrix Double -> Int -> Tree Detail -> IO ()
-unwrapTree l x = do
+unwrapTree m l x = do
     let cLabel = getLabel x
     let cSub =  getSub x
 
-    putStrLn $ replicate (l * 2) ' ' ++ show cLabel
+    putStrLn $ replicate (l * 2) ' ' ++ show (getShape cLabel)
 
-    
     return ()
 
 ------------------------------------------------------------------------------
 main :: IO ()
 main = do
-	sphereThenCylinder = do
-    	detail Sphere (CubeFaces yAxis) 0.3           ;
-    	detail Cylinder (SphereLoop 16 0) 0.3         }
-	cubeThenCylinder = do
-		detail Cube (CubeFaces xAxis) 0.1             ;
-		detail Cylinder (CubeFaces zAxis) 0.9         }
-	applyDetail = do {
-		detail Cube (CylinderLoop 8 0.5) 0.2          ;
+	let sphereThenCylinder = do {
+    	detail Cylinder (CubeFaces yAxis) 0.3 ;
+    	detail Cylinder (CubeFaces xAxis) 0.3 }
+	let cubeThenCylinder = do {
+		detail Cube (CubeFaces xAxis) 0.1 ;
+		detail Cube (CubeFaces zAxis) 0.9 }
+	let applyDetail = do {
+		detail Cube (CylinderLoop 8 0.5) 0.2 ;
 		branch [sphereThenCylinder, cubeThenCylinder] ;
-		detail Sphere (CylinderLoop 4 0.2) 0.4        }
+		detail Cube (CylinderLoop 4 0.2) 0.4 }
 
-
-    unwrapTree 0 $ head (runDetailGen cubeSegment2)
+    unwrapTree (identity 4) 0 $ head (runDetailGen applyDetail)
 
 ------------------------------------------------------------------------------

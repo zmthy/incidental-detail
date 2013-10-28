@@ -107,14 +107,20 @@ axisBetween vA vB
 
 --------------------------------------------------------------------------------
 skewAxis :: Vec3 -> Matrix Double
-skewAxis a = fromList 4 4 [ 0,     -vz a, vy a,  0,
-                            vz a,  0,     -vx a, 0,
-                            -vy a, vx a,  0,     0,
-                            0,     0,     0,     1 ]
+skewAxis a = fromList 3 3 [ 0,     -vz a, vy a,
+                            vz a,  0,     -vx a,
+                            -vy a, vx a,  0     ]
+
+--------------------------------------------------------------------------------
+addHomo :: Matrix Double -> Matrix Double
+addHomo m = fromList 4 4 [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m,  0,
+                            getElem 2 1 m, getElem 2 2 m, getElem 2 3 m, 0,
+                            getElem 3 1 m, getElem 3 2 m, getElem 3 3 m, 0,
+                            0,             0,             0,             1 ]
 
 --------------------------------------------------------------------------------
 rotBetween :: Vec3 -> Vec3 -> Matrix Double
-rotBetween a b = eye + (sinM + cosM)
+rotBetween a b = addHomo $ eye + (sinM + cosM)
   where eye    = identity 3
         sinM   = multByScalar (sin angle) skewed
         cosM   = multByScalar (1 - cos angle) (skewed * skewed)
@@ -163,6 +169,7 @@ rotate :: Int -> Double -> Matrix Double
 rotate 0 v = rotateX v
 rotate 1 v = rotateY v
 rotate 2 v = rotateZ v
+rotate _ _ = identity 4
 
 
 ------------------------------------------------------------------------------
