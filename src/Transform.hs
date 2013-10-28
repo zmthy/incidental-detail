@@ -9,6 +9,7 @@ module Transform
 
   -- * Vector fns
   , mtxToArr
+  , mtxToArr4
   , multByScalar
   , cross
   , dotV
@@ -40,6 +41,13 @@ mtxToArr :: Matrix Double -> [Double]
 mtxToArr m = [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m,
                getElem 2 1 m, getElem 2 2 m, getElem 2 3 m,
                getElem 3 1 m, getElem 3 2 m, getElem 3 3 m ]
+
+--------------------------------------------------------------------------------
+mtxToArr4 :: Matrix Double -> [Double]
+mtxToArr4 m = [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m, getElem 1 4 m,
+               getElem 2 1 m, getElem 2 2 m, getElem 2 3 m, getElem 2 4 m,
+               getElem 3 1 m, getElem 3 2 m, getElem 3 3 m, getElem 3 4 m,
+               getElem 4 1 m, getElem 4 2 m, getElem 4 3 m, getElem 4 4 m ]
 
 
 --------------------------------------------------------------------------------
@@ -129,8 +137,8 @@ rotBetween a b = addHomo $ eye + (sinM + cosM)
 
 
 ------------------------------------------------------------------------------
-translate :: Double -> Double -> Double -> Matrix Double
-translate x y z = fromList 4 4 arr
+translate :: Vec3 -> Matrix Double
+translate (x, y, z) = fromList 4 4 arr
   where arr = [ 1, 0, 0, x,
                 0, 1, 0, y,
                 0, 0, 1, z,
@@ -173,8 +181,8 @@ rotate _ _ = identity 4
 
 
 ------------------------------------------------------------------------------
-scale :: Double -> Double -> Double -> Matrix Double
-scale x y z = fromList 4 4 arr
+scale :: Vec3 -> Matrix Double
+scale (x, y, z) = fromList 4 4 arr
   where arr = [ x, 0, 0, 0,
                 0, y, 0, 0,
                 0, 0, z, 0,
