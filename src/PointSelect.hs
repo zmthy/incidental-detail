@@ -59,15 +59,8 @@ zAxis = AxisSelect False False True
 ------------------------------------------------------------------------------
 toPoints :: PointSelect -> [Point]
 toPoints ps = case ps of
-    CubeFaces axes   -> boundingBox axes
-    CylinderLoop c h -> horiLoop c h
+    CubeFaces axes   -> bboxCentroids (isX axes) (isY axes) (isZ axes)
+    CylinderLoop c h -> cylinderHLoop h c
 
 
-------------------------------------------------------------------------------
-boundingBox :: AxisSelect -> [Point]
-boundingBox _ = []
-
-------------------------------------------------------------------------------
-horiLoop :: Int -> Double -> [Point]
-horiLoop _ _ = []
 

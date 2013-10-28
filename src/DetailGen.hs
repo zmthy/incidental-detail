@@ -6,7 +6,7 @@ module DetailGen
     -- * Shape
       Shape (..)
 
-    , Detail
+    , Detail (..)
 
     -- * DetailGen
     , DetailGen
