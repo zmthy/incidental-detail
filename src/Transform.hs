@@ -2,13 +2,25 @@
 module Transform
   (
   -- * Vectors
-  Vec3,
-  vx,
-  vy,
-  vz,
+    Vec3
+  , vx
+  , vy
+  , vz
+
+  -- * Vector fns
+  , mtxToArr
+  , multByScalar
+  , cross
+  , dotV
+  , mag
+  , norm
+  , angleBetween
+  , axisBetween
+  , skewAxis
+  , rotBetween
 
   -- * Builders
-    translate
+  , translate
   , rotateX
   , rotateY
   , rotateZ
@@ -25,18 +37,15 @@ import Data.Matrix
 
 --------------------------------------------------------------------------------
 mtxToArr :: Matrix Double -> [Double]
-mtxToArr m = [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m, getElem 1 4 m,
-               getElem 2 1 m, getElem 2 2 m, getElem 2 3 m, getElem 2 4 m,
-               getElem 3 1 m, getElem 3 2 m, getElem 3 3 m, getElem 3 4 m,
-               getElem 4 1 m, getElem 4 2 m, getElem 4 3 m, getElem 4 4 m ]
+mtxToArr m = [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m,
+               getElem 2 1 m, getElem 2 2 m, getElem 2 3 m,
+               getElem 3 1 m, getElem 3 2 m, getElem 3 3 m ]
 
 
 --------------------------------------------------------------------------------
 multByScalar :: Double -> Matrix Double -> Matrix Double
-multByScalar s m = fromList 4 4 arr
-  where arr = map (*s) m
-
---------------------------------------------------------------------------------
+multByScalar s m = fromList 3 3 arr
+  where arr = map (*s) (mtxToArr m)
 
 
 --------------------------------------------------------------------------------
@@ -61,53 +70,54 @@ vz (_, _, z) = z
 --------------------------------------------------------------------------------
 cross :: Vec3 -> Vec3 -> Vec3
 cross a b = (x, y, z)
-  where x = (vy a) * (vz b) - (vy b) * (vz a)
-        y = (vx b) * (vz a) - (vx a) * (vz b)
-        z = (vx a) * (vy b) - (vy a) * (vx b)
+  where x = vy a * vz b - vy b * vz a
+        y = vx b * vz a - vx a * vz b
+        z = vx a * vy b - vy a * vx b
 
 
 --------------------------------------------------------------------------------
 dotV :: Vec3 -> Vec3 -> Double
-dotV a b = (px a) * (px b) + (vy a) * (vy b) + (vz a) * (vz b)
+dotV a b = vx a * vx b + vy a * vy b + vz a * vz b
 
 
 --------------------------------------------------------------------------------
 mag :: Vec3 -> Double
-mag v = sqrt $ px v ** 2 + vy v ** 2 + vz v ** 2
+mag v = sqrt $ vx v ** 2 + vy v ** 2 + vz v ** 2
 
 
 --------------------------------------------------------------------------------
 norm :: Vec3 -> Vec3
+norm (0, 0, 0) = (0, 0, 0)
 norm v = (x, y, z)
-  where x = (vx v) / m
-        y = (vy v) / m
-        z = (vz v) / m
+  where x = vx v / m
+        y = vy v / m
+        z = vz v / m
         m = mag v
 
 --------------------------------------------------------------------------------
-angleBetween :: Vec3 -> Vec3 -> Double 
+angleBetween :: Vec3 -> Vec3 -> Double
 angleBetween vA vB = acos $ dotV (norm vA) (norm vB)
 
 
 --------------------------------------------------------------------------------
 axisBetween :: Vec3 -> Vec3 -> Vec3
 axisBetween vA vB
-    | (cross vA vB) == (0, 0, 0) = (0, 0, 1)
+    | cross vA vB == (0, 0, 0) = (0, 0, 1)
     | otherwise = norm $ cross vA vB
 
 --------------------------------------------------------------------------------
-skewAxis :: Point -> Matrix Double
-skewAxis a = fromArr 4 4 [ 0,     -vz a, vy a,  0,
-                           vz a,  0,     -px a, 0,
-                           -vy a, px a,  0,     0
-                           0,     0,     0,     1 ]
+skewAxis :: Vec3 -> Matrix Double
+skewAxis a = fromList 4 4 [ 0,     -vz a, vy a,  0,
+                            vz a,  0,     -vx a, 0,
+                            -vy a, vx a,  0,     0,
+                            0,     0,     0,     1 ]
 
 --------------------------------------------------------------------------------
 rotBetween :: Vec3 -> Vec3 -> Matrix Double
 rotBetween a b = eye + (sinM + cosM)
-  where eye    = (identity 4)
+  where eye    = identity 3
         sinM   = multByScalar (sin angle) skewed
-        cosM   = multByScalar (1 - (cos angle)) (skewed * skewed)
+        cosM   = multByScalar (1 - cos angle) (skewed * skewed)
         skewed = skewAxis (axisBetween a b)
         angle  = angleBetween a b
 
