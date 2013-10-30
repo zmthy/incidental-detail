@@ -22,6 +22,7 @@ import Selection
 data PointSelect
     = CubeFaces AxisSelect
     | CylinderLoop Int Double
+    | Centre
     deriving (Show)
 
 
@@ -61,6 +62,7 @@ toPoints :: PointSelect -> [Point]
 toPoints ps = case ps of
     CubeFaces axes   -> bboxCentroids (isX axes) (isY axes) (isZ axes)
     CylinderLoop c h -> cylinderHLoop h c
+    Centre -> centroid
 
 
 

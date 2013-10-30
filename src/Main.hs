@@ -13,6 +13,7 @@ module Main where
 import Data.Tree
 import Data.Matrix
 import Text.Printf
+import Control.Applicative
 
 -- Source
 import DetailGen
@@ -22,7 +23,7 @@ import Transform
 
 ------------------------------------------------------------------------------
 makeDelims :: String -> String
-makeDelims d = "# " ++  concat (take 76 $ repeat d) ++ " #"
+makeDelims d = "# " ++  concat (replicate 76 d) ++ " #"
 
 
 ------------------------------------------------------------------------------
@@ -36,8 +37,8 @@ preamble n = unlines [delims, comment, delims, "", importMC, "", def]
 
 ------------------------------------------------------------------------------
 cmdFromShape :: Shape -> String
-cmdFromShape Cube     = "cmds.polyCube(w=1, h=1, d=1)"
-cmdFromShape Cylinder = "cmds.polyCylinder(r=0.5, h=1)"
+cmdFromShape Cube     = "cmds.polyCube(w=2, h=2, d=2)"
+cmdFromShape Cylinder = "cmds.polyCylinder(r=1, h=2)"
 
 
 ------------------------------------------------------------------------------
@@ -65,24 +66,39 @@ getSub = subForest
 
 
 ------------------------------------------------------------------------------
-formMatrix :: Point -> Matrix Double
-formMatrix p = t * r * s * (identity 4)
+mtxToPoint :: Matrix Double -> (Double, Double, Double)
+mtxToPoint m = (x, y, z)
+    where x = getElem 1 1 m
+          y = getElem 2 1 m
+          z = getElem 3 1 m
+
+
+------------------------------------------------------------------------------
+dotMtxVec :: Matrix Double -> Vec3 -> Vec3
+dotMtxVec m (x, y, z) = mtxToPoint p
+    where p = m * fromList 4 1 [x, y, z, 1]
+
+
+------------------------------------------------------------------------------
+formMatrix :: Point -> Vec3 -> Matrix Double
+formMatrix p gScale = t * r * s
     where t = translate loc
           r = rotBetween (1, 0, 0) up
-          s = scale (0.65, 0.25, 0.25)
+          s = scale gScale
           loc = location p
           up  = upVector p
 
 
 ------------------------------------------------------------------------------
-expand :: Int -> Detail -> Forest Detail -> Matrix Double -> Point -> IO ()
-expand l label sub pMtx p = do
-    putStrLn $ show p
-    let newM = dotM (formMatrix p) pMtx
-    mapM_ (unwrapTree newM (l + 1)) sub
-
+expand :: Int -> Detail -> Forest Detail -> Matrix Double -> Vec3 -> Point -> IO ()
+expand l label sub pMtx gScale p = do
+    --print $ show p
+    let newM = pMtx * formMatrix p gScale
+    let newMScale = scale (1, 1, 1) * newM
     appendFile "basic.py" $ printf "    %s\n" (cmdFromShape (getShape label))
-    appendFile "basic.py" $ printf "    cmds.xform(m = %s)\n" $ show (mtxToArr4 (transpose newM))
+    appendFile "basic.py" $ printf "    cmds.xform(m = %s)\n" $ show (mtxToArr4 (transpose newMScale))
+
+    mapM_ (unwrapTree newM (l + 1)) sub
 
     return ()
 
@@ -91,31 +107,43 @@ expand l label sub pMtx p = do
 unwrapTree :: Matrix Double -> Int -> Tree Detail -> IO ()
 unwrapTree m l x = do
     let cLabel = getLabel x
-    let cSub =  getSub x
+    let cSub   = getSub x
     let points = getPoints cLabel
+    let cScale = getScale cLabel
 
-    mapM_ (expand l cLabel cSub m) points
+    mapM_ (expand l cLabel cSub m (cScale, cScale, cScale)) points
 
     return ()
 
 ------------------------------------------------------------------------------
 main :: IO ()
 main = do
-    let sphereThenCylinder = do {
-        detail Cylinder (CubeFaces yAxis) 0.3 ;
-        detail Cylinder (CubeFaces xAxis) 0.3 }
-    let cubeThenCylinder = do {
-        detail Cube (CubeFaces xAxis) 0.1 ;
-        detail Cube (CubeFaces zAxis) 0.9 }
-    let applyDetail = do {
-        detail Cube (CylinderLoop 8 0.5) 0.2 ;
-        detail Cube (CylinderLoop 8 0.5) 0.2 }
+    --let sphereThenCylinder = do {
+    --    detail Cylinder (CubeFaces yAxis) 0.3 ;
+    --    detail Cylinder (CubeFaces xAxis) 0.3 }
+    --let cubeThenCylinder = do {
+    --    detail Cube (CubeFaces xAxis) 0.1 ;
+    --    detail Cube (CubeFaces zAxis) 0.9 }
+    --let applyDetail = do {
+    --    detail Cylinder (CubeFaces xAxis) 1.0 ;
+    --    detail Cube (CylinderLoop 8 0.0) 0.4 }
         --branch [sphereThenCylinder ] }
         --branch [sphereThenCylinder, cubeThenCylinder] ;
         --detail Cube (CylinderLoop 4 0.2) 0.4 }
+        --
+
+    let segment = do {
+        detail Cylinder Centre 1.0 ;
+        branch [pure (0.7, 0.1), pure (0.0, 0.5), pure (-0.7, 0.1)]
+    }
+    let lineOfCubes = do {
+        (h, s) <- segment ;
+        detail Cube (CylinderLoop 8 h) s ;
+        detail Cylinder (CubeFaces yAxis) 0.5
+    }
 
     writeFile "basic.py" (preamble "Basic")
-    unwrapTree (identity 4) 0 $ head (runDetailGen applyDetail)
+    unwrapTree (identity 4) 0 $ head (runDetailGen lineOfCubes)
 
 
 

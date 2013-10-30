@@ -9,6 +9,7 @@ module Selection
   , stdUp
   , stdCopy
 
+  , centroid
   , pointOnSphere
   , pointOnCylinder
 
@@ -41,6 +42,11 @@ stdCopy x y z = Point (x, y, z) (x, y, z)
 
 
 ------------------------------------------------------------------------------
+centroid :: [Point]
+centroid =  [stdCopy 0 0 0]
+
+
+------------------------------------------------------------------------------
 bboxCentroids :: Bool -> Bool-> Bool -> [Point]
 bboxCentroids x y z = concat [xA, yA, zA]
   where xA = if x then [stdCopy (-1) 0 0, stdCopy 1 0 0] else []
@@ -65,17 +71,17 @@ pointOnCylinder r a h = Point (x, y, z) (x, 0, z)
 
 ------------------------------------------------------------------------------
 cylinderHLoop :: Double -> Int -> [Point]
-cylinderHLoop h c = map (\a -> pointOnCylinder 1 a h) [0, twopi / (fromIntegral c - 1) .. twopi]
+cylinderHLoop h c = map (\a -> pointOnCylinder 1 a h) [0, twopi / fromIntegral c .. twopi]
 
 
 ------------------------------------------------------------------------------
 sphereHLoop :: Double -> Int -> [Point]
-sphereHLoop p c = map (\a -> pointOnSphere 1 p a) [0, twopi / (fromIntegral c - 1) .. twopi]
+sphereHLoop p c = map (pointOnSphere 1 p) [0, twopi / fromIntegral c .. twopi]
 
 
 ------------------------------------------------------------------------------
 sphereVLoop :: Double -> Int -> [Point]
-sphereVLoop h c = sphereHLoop h c
+sphereVLoop = sphereHLoop
 
 
 
