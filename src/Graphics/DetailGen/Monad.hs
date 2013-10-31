@@ -1,11 +1,12 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 ------------------------------------------------------------------------------
-module DetailGen
+module Graphics.DetailGen.Monad
     (
     -- * Shape
       Shape (..)
 
+    -- * Detail
     , Detail (..)
 
     -- * DetailGen
@@ -13,6 +14,7 @@ module DetailGen
     , runDetailGen
     , detail
     , branch
+    , pureBranch
     , done
     ) where
 
@@ -22,7 +24,7 @@ import Control.Monad.Free
 import Data.Tree
 
 ------------------------------------------------------------------------------
-import PointSelect
+import Graphics.DetailGen.PointSelection
 
 
 ------------------------------------------------------------------------------
@@ -31,8 +33,11 @@ data Shape = Cube | Cylinder
 
 
 ------------------------------------------------------------------------------
-data Detail = Detail Shape PointSelect Double
-    deriving (Show)
+data Detail = Detail
+    { detailShape     :: Shape
+    , detailSelection :: PointSelection
+    , detailScale     :: Double
+    } deriving (Show)
 
 
 ------------------------------------------------------------------------------
@@ -55,13 +60,18 @@ mk = DetailGen . Free
 
 
 ------------------------------------------------------------------------------
-detail :: Shape -> PointSelect -> Double -> DetailGen ()
+detail :: Shape -> PointSelection -> Double -> DetailGen ()
 detail shape select scale = mk $ Apply (Detail shape select scale) [pure ()]
 
 
 ------------------------------------------------------------------------------
 branch :: [DetailGen a] -> DetailGen a
 branch = mk . Branch . map runDetailGen'
+
+
+------------------------------------------------------------------------------
+pureBranch :: [a] -> DetailGen a
+pureBranch = branch . map (DetailGen . Pure)
 
 
 ------------------------------------------------------------------------------

@@ -1,38 +1,39 @@
 ------------------------------------------------------------------------------
-module Transform
-  (
-  -- * Vectors
-    Vec3
-  , vx
-  , vy
-  , vz
+-- | Defines 3-dimensional vector utilities.
+module Graphics.DetailGen.Vec3
+    (
+    -- * Vectors
+      Vec3
+    , vx
+    , vy
+    , vz
 
-  -- * Vector fns
-  , mtxToArr
-  , mtxToArr4
-  , multByScalar
-  , cross
-  , dotV
-  , mag
-  , norm
-  , angleBetween
-  , axisBetween
-  , skewAxis
-  , rotBetween
+    -- * Vector fns
+    , mtxToArr
+    , mtxToArr4
+    , multByScalar
+    , cross
+    , dotV
+    , mag
+    , norm
+    , angleBetween
+    , axisBetween
+    , skewAxis
+    , rotBetween
 
-  -- * Builders
-  , translate
-  , rotateX
-  , rotateY
-  , rotateZ
-  , rotate
-  , scale
+    -- * Builders
+    , translate
+    , rotateX
+    , rotateY
+    , rotateZ
+    , rotate
+    , scale
 
-  -- * Operations
-  , dotM
-  ) where
+    -- * Operations
+    , dotM
+    ) where
 
-
+------------------------------------------------------------------------------
 import Data.Matrix
 
 
@@ -41,6 +42,7 @@ mtxToArr :: Matrix Double -> [Double]
 mtxToArr m = [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m,
                getElem 2 1 m, getElem 2 2 m, getElem 2 3 m,
                getElem 3 1 m, getElem 3 2 m, getElem 3 3 m ]
+
 
 --------------------------------------------------------------------------------
 mtxToArr4 :: Matrix Double -> [Double]
@@ -102,6 +104,7 @@ norm v = (x, y, z)
         z = vz v / m
         m = mag v
 
+
 --------------------------------------------------------------------------------
 angleBetween :: Vec3 -> Vec3 -> Double
 angleBetween vA vB = acos $ dotV (norm vA) (norm vB)
@@ -113,11 +116,13 @@ axisBetween vA vB
     | cross vA vB == (0, 0, 0) = (0, 0, 1)
     | otherwise = norm $ cross vA vB
 
+
 --------------------------------------------------------------------------------
 skewAxis :: Vec3 -> Matrix Double
 skewAxis a = fromList 3 3 [ 0,     -vz a, vy a,
                             vz a,  0,     -vx a,
                             -vy a, vx a,  0     ]
+
 
 --------------------------------------------------------------------------------
 addHomo :: Matrix Double -> Matrix Double
@@ -125,6 +130,7 @@ addHomo m = fromList 4 4 [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m,  0,
                             getElem 2 1 m, getElem 2 2 m, getElem 2 3 m, 0,
                             getElem 3 1 m, getElem 3 2 m, getElem 3 3 m, 0,
                             0,             0,             0,             1 ]
+
 
 --------------------------------------------------------------------------------
 rotBetween :: Vec3 -> Vec3 -> Matrix Double
@@ -192,5 +198,4 @@ scale (x, y, z) = fromList 4 4 arr
 ------------------------------------------------------------------------------
 dotM :: Matrix Double -> Matrix Double -> Matrix Double
 dotM = multStd
-
 

@@ -1,25 +1,37 @@
 ------------------------------------------------------------------------------
--- Incidental Detail, a library for generating details of the incidental kind.
---
--- Victoria University of Welling, ECS
---    Richard Roberts
---    Timothy Jones
---    John Lewis
+module Main
+    ( main
+    ) where
+
 ------------------------------------------------------------------------------
-
-module Main where
-
--- Standard
-import Data.Tree
 import Data.Matrix
+import Data.Tree
 import Text.Printf
-import Control.Applicative
 
--- Source
-import DetailGen
-import PointSelect
-import Selection
-import Transform
+------------------------------------------------------------------------------
+import Graphics.DetailGen.Monad
+import Graphics.DetailGen.Point
+import Graphics.DetailGen.PointSelection
+import Graphics.DetailGen.Vec3
+
+
+------------------------------------------------------------------------------
+-- | Writes the simple example to "basic.py".
+main :: IO ()
+main = do
+    writeFile "basic.py" (preamble "Basic")
+    unwrapTree (identity 4) 0 $ head (runDetailGen example)
+
+
+------------------------------------------------------------------------------
+-- | A simple example of the DSL.
+example :: DetailGen ()
+example = do
+    detail Cylinder Centre 1
+    (h, s) <- pureBranch [(0.7, 0.1), (0, 0.5), (-0.7, 0.1)]
+    detail Cube (CylinderLoop 8 h) s
+    detail Cylinder (CubeFaces yAxis) 0.5
+
 
 ------------------------------------------------------------------------------
 makeDelims :: String -> String
@@ -39,30 +51,6 @@ preamble n = unlines [delims, comment, delims, "", importMC, "", def]
 cmdFromShape :: Shape -> String
 cmdFromShape Cube     = "cmds.polyCube(w=2, h=2, d=2)"
 cmdFromShape Cylinder = "cmds.polyCylinder(r=1, h=2)"
-
-
-------------------------------------------------------------------------------
-getShape :: Detail -> Shape
-getShape (Detail s _ _) = s
-
-
-------------------------------------------------------------------------------
-getPoints :: Detail -> [Point]
-getPoints (Detail _ p _) = toPoints p
-
-
-------------------------------------------------------------------------------
-getScale :: Detail -> Double
-getScale (Detail _ _ s) = s
-
-------------------------------------------------------------------------------
-getLabel :: Tree Detail -> Detail
-getLabel = rootLabel
-
-
-------------------------------------------------------------------------------
-getSub :: Tree Detail -> Forest Detail
-getSub = subForest
 
 
 ------------------------------------------------------------------------------
@@ -94,57 +82,18 @@ expand :: Int -> Detail -> Forest Detail -> Matrix Double -> Vec3 -> Point -> IO
 expand l label sub pMtx gScale p = do
     --print $ show p
     let newM = pMtx * formMatrix p gScale
-    let newMScale = scale (1, 1, 1) * newM
-    appendFile "basic.py" $ printf "    %s\n" (cmdFromShape (getShape label))
+        newMScale = scale (1, 1, 1) * newM
+    appendFile "basic.py" $ printf "    %s\n" (cmdFromShape (detailShape label))
     appendFile "basic.py" $ printf "    cmds.xform(m = %s)\n" $ show (mtxToArr4 (transpose newMScale))
-
     mapM_ (unwrapTree newM (l + 1)) sub
-
-    return ()
 
 
 ------------------------------------------------------------------------------
 unwrapTree :: Matrix Double -> Int -> Tree Detail -> IO ()
 unwrapTree m l x = do
-    let cLabel = getLabel x
-    let cSub   = getSub x
-    let points = getPoints cLabel
-    let cScale = getScale cLabel
+    let root     = rootLabel x
+        children = subForest x
+        points   = toPoints $ detailSelection root
+        dScale   = detailScale root
+    mapM_ (expand l root children m (dScale, dScale, dScale)) points
 
-    mapM_ (expand l cLabel cSub m (cScale, cScale, cScale)) points
-
-    return ()
-
-------------------------------------------------------------------------------
-main :: IO ()
-main = do
-    --let sphereThenCylinder = do {
-    --    detail Cylinder (CubeFaces yAxis) 0.3 ;
-    --    detail Cylinder (CubeFaces xAxis) 0.3 }
-    --let cubeThenCylinder = do {
-    --    detail Cube (CubeFaces xAxis) 0.1 ;
-    --    detail Cube (CubeFaces zAxis) 0.9 }
-    --let applyDetail = do {
-    --    detail Cylinder (CubeFaces xAxis) 1.0 ;
-    --    detail Cube (CylinderLoop 8 0.0) 0.4 }
-        --branch [sphereThenCylinder ] }
-        --branch [sphereThenCylinder, cubeThenCylinder] ;
-        --detail Cube (CylinderLoop 4 0.2) 0.4 }
-        --
-
-    let segment = do {
-        detail Cylinder Centre 1.0 ;
-        branch [pure (0.7, 0.1), pure (0.0, 0.5), pure (-0.7, 0.1)]
-    }
-    let lineOfCubes = do {
-        (h, s) <- segment ;
-        detail Cube (CylinderLoop 8 h) s ;
-        detail Cylinder (CubeFaces yAxis) 0.5
-    }
-
-    writeFile "basic.py" (preamble "Basic")
-    unwrapTree (identity 4) 0 $ head (runDetailGen lineOfCubes)
-
-
-
-------------------------------------------------------------------------------
