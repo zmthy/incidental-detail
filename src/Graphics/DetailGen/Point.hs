@@ -15,6 +15,12 @@ module Graphics.DetailGen.Point
   , pointOnCylinder
 
   -- * Selection Functions
+  , cFront
+  , cBack
+  , cLeft
+  , cRight
+  , cTop
+  , cBottom
   , bboxCentroids
   , cylinderHLoop
   , sphereLoop
@@ -39,17 +45,47 @@ stdCopy x y z = Point (x, y, z) (x, y, z)
 
 
 ------------------------------------------------------------------------------
-centroid :: [Point]
-centroid =  [stdUp 0 0 0]
+centroid :: Point
+centroid = stdUp 0 0 0
+
+
+------------------------------------------------------------------------------
+cFront :: Point
+cFront = stdCopy 0 0 1
+
+
+------------------------------------------------------------------------------
+cBack :: Point
+cBack = stdCopy 0 0 (-1)
+
+
+------------------------------------------------------------------------------
+cLeft :: Point
+cLeft = stdCopy (-1) 0 0
+
+
+------------------------------------------------------------------------------
+cRight :: Point
+cRight = stdCopy 1 0 0
+
+
+------------------------------------------------------------------------------
+cTop :: Point
+cTop = stdCopy 0 1 0
+
+
+------------------------------------------------------------------------------
+cBottom :: Point
+cBottom = stdCopy 0 (-1) 0
 
 
 ------------------------------------------------------------------------------
 bboxCentroids :: Bool -> Bool-> Bool -> [Point]
 bboxCentroids x y z = concat [xA, yA, zA]
   where
-    xA = if x then [stdCopy (-1) 0 0, stdCopy 1 0 0] else []
-    yA = if y then [stdCopy 0 (-1) 0, stdCopy 0 1 0] else []
-    zA = if z then [stdCopy 0 0 (-1), stdCopy 0 0 1] else []
+    xA = if x then [cRight, cLeft] else []
+    yA = if y then [cTop, cBottom] else []
+    zA = if z then [cFront, cBack] else []
 
 
 ------------------------------------------------------------------------------

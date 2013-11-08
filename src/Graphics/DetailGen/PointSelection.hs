@@ -26,6 +26,12 @@ data PointSelection
     | CylinderLoop Int Double
     | SphereLoop Int Double
     | Centre
+    | FaceR
+    | FaceL
+    | FaceU
+    | FaceD
+    | FaceF
+    | FaceB
 
     deriving (Show)
 
@@ -36,7 +42,13 @@ toPoints ps = case ps of
     CubeFaces axes   -> bboxCentroids (isX axes) (isY axes) (isZ axes)
     CylinderLoop c h -> cylinderHLoop h c
     SphereLoop c h   -> sphereLoop h c
-    Centre           -> centroid
+    Centre           -> [centroid]
+    FaceR            -> [cRight]
+    FaceL            -> [cLeft]
+    FaceU            -> [cTop]
+    FaceD            -> [cBottom]
+    FaceF            -> [cFront]
+    FaceB            -> [cBack]
 
 
 ------------------------------------------------------------------------------

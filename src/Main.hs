@@ -22,7 +22,7 @@ import Examples
 main :: IO ()
 main = do
     writeFile "basic.py" (preamble "Basic")
-    unwrapTree (identity 4) (1, 1, 1) 0 $ head (runDetailGen paperExample1)
+    unwrapTree (identity 4) (1, 1, 1) 0 $ head (runDetailGen paperMain1)
 
 ------------------------------------------------------------------------------
 makeDelims :: String -> String
@@ -59,7 +59,8 @@ expand :: Int -> Detail -> Forest Detail -> Matrix Double -> Vec3 -> Vec3 -> Vec
 expand l label sub pMtx pScale gScale up p = do
     --print $ show p
     let newM = pMtx * formMatrix p gScale up
-        newMScale = scale pScale * newM
+        --newMScale = scale pScale * newM
+        newMScale = pMtx * formMatrix p gScale up * scale pScale
     appendFile "basic.py" $ printf "    %s\n" (cmdFromShape (detailShape label))
     appendFile "basic.py" $ printf "    cmds.xform(m = %s)\n" $ show (mtxToArr4 (transpose newMScale))
     mapM_ (unwrapTree newM pScale (l + 1)) sub
