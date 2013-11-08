@@ -31,6 +31,8 @@ module Graphics.DetailGen.Vec3
 
     -- * Operations
     , dotM
+    , toVec3
+    , dotMV
     ) where
 
 ------------------------------------------------------------------------------
@@ -198,4 +200,16 @@ scale (x, y, z) = fromList 4 4 arr
 ------------------------------------------------------------------------------
 dotM :: Matrix Double -> Matrix Double -> Matrix Double
 dotM = multStd
+
+
+------------------------------------------------------------------------------
+toVec3 :: Matrix Double -> Vec3
+toVec3 m = (getElem 1 1 m, getElem 2 1 m, getElem 3 1 m)
+
+
+------------------------------------------------------------------------------
+dotMV :: Matrix Double -> Vec3 -> Vec3
+dotMV m v = toVec3 $ dotM m v'
+  where v' = fromList 4 1 [vx v, vy v, vz v, 1.0]
+
 

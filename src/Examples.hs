@@ -37,16 +37,16 @@ paperExample1 :: DetailGen ()
 paperExample1 = applyDetail
   where
     sphereThenCylinder = do
-        detail Sphere   (CubeFaces yAxis) (uniform 0.3) constant fwd
-        detail Cylinder (SphereLoop 16 0) (uniform 0.3) constant fwd
+        detail Sphere   (CubeFaces yAxis) (uniform 0.6) constant fwd
+        detail Cylinder (SphereLoop 8 0)  (uniform 0.3) constant fwd
     cubeThenCylinder = do
-        detail Cube     (CubeFaces xAxis) (uniform 0.1) constant fwd
-        detail Cylinder (CubeFaces zAxis) (uniform 0.9) constant fwd
+        detail Cube     (CubeFaces xAxis) (uniform 0.4) constant fwd
+        detail Cylinder (CubeFaces zAxis) (uniform 0.7) constant fwd
     applyDetail = do
         detail Cylinder Centre constant constant up
-        detail Cube   (CylinderLoop 8 0.0) (uniform 0.2) constant fwd
+        detail Cube     (CylinderLoop 6 0) (uniform 0.2) (1, 2, 1) fwd
         branch [sphereThenCylinder, cubeThenCylinder]
-        detail Sphere (CylinderLoop 4 0.2) (uniform 0.4) constant fwd
+        detail Sphere   (CylinderLoop 4 0) (uniform 0.4) constant fwd
 
 
 ------------------------------------------------------------------------------
