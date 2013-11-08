@@ -8,7 +8,13 @@ module Graphics.DetailGen.Vec3
     , vy
     , vz
 
-    -- * Vector fns
+    -- * Simple constructors
+    , uniform
+    , constant
+    , up
+    , fwd
+
+    -- * Utility functions
     , mtxToArr
     , mtxToArr4
     , multByScalar
@@ -21,7 +27,7 @@ module Graphics.DetailGen.Vec3
     , skewAxis
     , rotBetween
 
-    -- * Builders
+    -- * Matrix builders
     , translate
     , rotateX
     , rotateY
@@ -77,6 +83,30 @@ vy (_, y, _) = y
 --------------------------------------------------------------------------------
 vz :: Vec3 -> Double
 vz (_, _, z) = z
+
+
+------------------------------------------------------------------------------
+-- | Build a uniform vector of the given value.
+uniform :: Double -> Vec3
+uniform v = (v, v, v)
+
+
+------------------------------------------------------------------------------
+-- | A constant vector under multiplication.
+constant :: Vec3
+constant = (1, 1, 1)
+
+
+------------------------------------------------------------------------------
+-- | The up vector.
+up :: Vec3
+up = (0, 1, 0)
+
+
+------------------------------------------------------------------------------
+-- | The forward vector.
+fwd :: Vec3
+fwd = (1, 0, 0)
 
 
 --------------------------------------------------------------------------------

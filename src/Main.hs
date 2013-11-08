@@ -24,6 +24,7 @@ main = do
     writeFile "basic.py" (preamble "Basic")
     unwrapTree (identity 4) (1, 1, 1) 0 $ head (runDetailGen paperMain1)
 
+
 ------------------------------------------------------------------------------
 makeDelims :: String -> String
 makeDelims d = "# " ++  concat (replicate 76 d) ++ " #"
@@ -43,6 +44,7 @@ cmdFromShape :: Shape -> String
 cmdFromShape Cube     = "cmds.polyCube(w=2, h=2, d=2)"
 cmdFromShape Cylinder = "cmds.polyCylinder(r=1, h=2)"
 cmdFromShape Sphere   = "cmds.polySphere(r=1)"
+
 
 ------------------------------------------------------------------------------
 formMatrix :: Point -> Vec3 -> Vec3 -> Matrix Double

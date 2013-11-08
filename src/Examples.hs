@@ -11,27 +11,6 @@ import Graphics.DetailGen.PointSelection
 import Graphics.DetailGen.Vec3
 
 
-
-------------------------------------------------------------------------------
-uniform :: Double -> Vec3
-uniform v = (v, v, v)
-
-
-------------------------------------------------------------------------------
-constant :: Vec3
-constant = (1, 1, 1)
-
-
-------------------------------------------------------------------------------
-up :: Vec3
-up = (0, 1, 0)
-
-
-------------------------------------------------------------------------------
-fwd :: Vec3
-fwd = (1, 0, 0)
-
-
 ------------------------------------------------------------------------------
 -- | A simple example of the DSL.
 paperExample1 :: DetailGen ()
@@ -82,7 +61,7 @@ paperMain1 = do
         detail Sphere (CubeFaces zAxis) (uniform 0.2) constant fwd
     base = do
         detail Cube (CylinderLoop 12 (-0.7)) constant (0.8, 0.02, 0.5) fwd
-        detail Cube FaceR (uniform 0.9) (0.02, 0.02, 0.5) fwd --spacer
+        detail Cube FaceR (uniform 0.9) (0.02, 0.02, 0.5) fwd
         detail Cylinder (CubeFaces zAxis) (uniform 0.9) (0.02, 1.2, 0.02) fwd
         detail Sphere FaceU (uniform 0.05) constant up
     ground = detail Cube FaceD (4, 0.01, 4) constant up >> done
