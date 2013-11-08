@@ -17,8 +17,7 @@ module Graphics.DetailGen.Point
   -- * Selection Functions
   , bboxCentroids
   , cylinderHLoop
-  , sphereHLoop
-  , sphereVLoop
+  , sphereLoop
   ) where
 
 
@@ -78,12 +77,8 @@ cylinderHLoop h c =
 
 
 ------------------------------------------------------------------------------
-sphereHLoop :: Double -> Int -> [Point]
-sphereHLoop p c =
-    map (pointOnSphere 1 p) [0, pi * 2 / fromIntegral c .. pi * 2]
-
-
-------------------------------------------------------------------------------
-sphereVLoop :: Double -> Int -> [Point]
-sphereVLoop = sphereHLoop
+sphereLoop :: Double -> Int -> [Point]
+sphereLoop p c =
+    map (pointOnSphere 1 p') [0, pi * 2 / fromIntegral c .. pi * 2]
+    where p' = p + pi / 2.0
 

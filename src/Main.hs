@@ -14,24 +14,15 @@ import Graphics.DetailGen.Point
 import Graphics.DetailGen.PointSelection
 import Graphics.DetailGen.Vec3
 
+import Examples
+
 
 ------------------------------------------------------------------------------
 -- | Writes the simple example to "basic.py".
 main :: IO ()
 main = do
     writeFile "basic.py" (preamble "Basic")
-    unwrapTree (identity 4) 0 $ head (runDetailGen example)
-
-
-------------------------------------------------------------------------------
--- | A simple example of the DSL.
-example :: DetailGen ()
-example = do
-    detail Cylinder Centre 1
-    (h, s) <- pureBranch [(0.7, 0.1), (0, 0.5), (-0.7, 0.1)]
-    detail Cube (CylinderLoop 8 h) s
-    detail Cylinder (CubeFaces yAxis) 0.5
-
+    unwrapTree (identity 4) 0 $ head (runDetailGen paperExample1)
 
 ------------------------------------------------------------------------------
 makeDelims :: String -> String
@@ -51,38 +42,24 @@ preamble n = unlines [delims, comment, delims, "", importMC, "", def]
 cmdFromShape :: Shape -> String
 cmdFromShape Cube     = "cmds.polyCube(w=2, h=2, d=2)"
 cmdFromShape Cylinder = "cmds.polyCylinder(r=1, h=2)"
-
-
-------------------------------------------------------------------------------
-mtxToPoint :: Matrix Double -> (Double, Double, Double)
-mtxToPoint m = (x, y, z)
-    where x = getElem 1 1 m
-          y = getElem 2 1 m
-          z = getElem 3 1 m
-
+cmdFromShape Sphere   = "cmds.polySphere(r=1)"
 
 ------------------------------------------------------------------------------
-dotMtxVec :: Matrix Double -> Vec3 -> Vec3
-dotMtxVec m (x, y, z) = mtxToPoint p
-    where p = m * fromList 4 1 [x, y, z, 1]
-
-
-------------------------------------------------------------------------------
-formMatrix :: Point -> Vec3 -> Matrix Double
-formMatrix p gScale = t * r * s
+formMatrix :: Point -> Vec3 -> Vec3 -> Matrix Double
+formMatrix p gScale upV = t * r * s
     where t = translate loc
-          r = rotBetween (1, 0, 0) up
+          r = rotBetween upV up
           s = scale gScale
           loc = location p
           up  = upVector p
 
 
 ------------------------------------------------------------------------------
-expand :: Int -> Detail -> Forest Detail -> Matrix Double -> Vec3 -> Point -> IO ()
-expand l label sub pMtx gScale p = do
+expand :: Int -> Detail -> Forest Detail -> Matrix Double -> Vec3 -> Vec3 -> Vec3 -> Point -> IO ()
+expand l label sub pMtx pScale gScale up p = do
     --print $ show p
-    let newM = pMtx * formMatrix p gScale
-        newMScale = scale (1, 1, 1) * newM
+    let newM = pMtx * formMatrix p gScale up
+        newMScale = scale pScale * newM
     appendFile "basic.py" $ printf "    %s\n" (cmdFromShape (detailShape label))
     appendFile "basic.py" $ printf "    cmds.xform(m = %s)\n" $ show (mtxToArr4 (transpose newMScale))
     mapM_ (unwrapTree newM (l + 1)) sub
@@ -94,6 +71,8 @@ unwrapTree m l x = do
     let root     = rootLabel x
         children = subForest x
         points   = toPoints $ detailSelection root
-        dScale   = detailScale root
-    mapM_ (expand l root children m (dScale, dScale, dScale)) points
+        gScale   = detailGScale root
+        pScale   = detailPScale root
+        up       = detailUp root
+    mapM_ (expand l root children m pScale gScale up) points
 

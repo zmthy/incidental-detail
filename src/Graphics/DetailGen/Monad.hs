@@ -25,10 +25,11 @@ import Data.Tree
 
 ------------------------------------------------------------------------------
 import Graphics.DetailGen.PointSelection
+import Graphics.DetailGen.Vec3
 
 
 ------------------------------------------------------------------------------
-data Shape = Cube | Cylinder
+data Shape = Cube | Cylinder | Sphere
     deriving (Show)
 
 
@@ -36,7 +37,9 @@ data Shape = Cube | Cylinder
 data Detail = Detail
     { detailShape     :: Shape
     , detailSelection :: PointSelection
-    , detailScale     :: Double
+    , detailGScale    :: Vec3
+    , detailPScale    :: Vec3
+    , detailUp        :: Vec3
     } deriving (Show)
 
 
@@ -60,8 +63,8 @@ mk = DetailGen . Free
 
 
 ------------------------------------------------------------------------------
-detail :: Shape -> PointSelection -> Double -> DetailGen ()
-detail shape select scale = mk $ Apply (Detail shape select scale) [pure ()]
+detail :: Shape -> PointSelection -> Vec3 -> Vec3 -> Vec3 -> DetailGen ()
+detail s sp gs ps u = mk $ Apply (Detail s sp gs ps u) [pure ()]
 
 
 ------------------------------------------------------------------------------

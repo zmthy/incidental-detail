@@ -24,7 +24,9 @@ import Graphics.DetailGen.Point
 data PointSelection
     = CubeFaces AxisSelection
     | CylinderLoop Int Double
+    | SphereLoop Int Double
     | Centre
+
     deriving (Show)
 
 
@@ -33,6 +35,7 @@ toPoints :: PointSelection -> [Point]
 toPoints ps = case ps of
     CubeFaces axes   -> bboxCentroids (isX axes) (isY axes) (isZ axes)
     CylinderLoop c h -> cylinderHLoop h c
+    SphereLoop c h   -> sphereLoop h c
     Centre           -> centroid
 
 
