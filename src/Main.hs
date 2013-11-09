@@ -18,5 +18,5 @@ import Graphics.DetailGen.Monad (runDetailGen)
 -- | Writes the simple example to "basic.py".
 main :: IO ()
 main = writeForest "basic.py" (identity 4) (1, 1, 1) 0 $
-    runDetailGen Examples.paperMain1
+    runDetailGen Examples.paperExample2
 
