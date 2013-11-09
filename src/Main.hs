@@ -22,7 +22,7 @@ import Examples
 main :: IO ()
 main = do
     writeFile "basic.py" (preamble "Basic")
-    unwrapTree (identity 4) (1, 1, 1) 0 $ head (runDetailGen paperExample1)
+    unwrapTree (identity 4) (1, 1, 1) 0 $ head (runDetailGen paperExample2)
 
 
 ------------------------------------------------------------------------------
