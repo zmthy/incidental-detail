@@ -62,7 +62,7 @@ writeGroupingFor g = ($ "  groupNodesUnder(" <> g <> ", '" <> g <> "')")
 ------------------------------------------------------------------------------
 unwrapTree :: Matrix Double -> Vec3 -> Int -> WriteLn -> Tree Detail -> IO ()
 unwrapTree m s l writeln x = do
-    writeln $ group <> " = []"
+    writeln $ "  " <> group <> " = []"
     mapM_ (expand l root children m pScale gScale up' writeln) points'
     writeGroupingFor group writeln
   where
@@ -93,7 +93,7 @@ expand
     -> WriteLn -> Point -> IO ()
 expand l label sub pMtx pScale gScale up' writeln p = do
     writeln $ "  " <> group <> " += [" <> cmd <> "[0]]"
-    writeln $ "  cmds.xform(m = " <> bsShow (mtxToArr4 scaled) <> ")"
+    writeln $ "  cmds.xform(m = " <> bsShowArr (mtxToArr4 scaled) <> ")"
     mapM_ (unwrapTree newM pScale (l + 1) writeln) sub
   where
     group = "nodes_" <> bsShow l <> "_"
@@ -110,6 +110,13 @@ cmdFromShape Sphere   = "cmds.polySphere(r=1)"
 
 
 ------------------------------------------------------------------------------
-bsShow :: Show a => a -> ByteString
+bsShow :: Int -> ByteString
 bsShow = BS.fromString . show
+
+
+------------------------------------------------------------------------------
+bsShowArr :: [Double] -> ByteString
+bsShowArr = BS.fromString . show . map roundToFive
+  where
+    roundToFive n = fromIntegral (round $ 5 * n :: Int) / (5 :: Double)
 
