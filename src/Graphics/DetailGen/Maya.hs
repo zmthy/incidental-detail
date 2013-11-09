@@ -24,8 +24,9 @@ import Graphics.DetailGen.Vec3
 ------------------------------------------------------------------------------
 writeForest
     :: FilePath -> Matrix Double -> Vec3 -> Int -> Forest Detail -> IO ()
-writeForest fp fd m s l = Stream.withFileAsOutput fp $
-    writeForest' fp fd m s l. writeln >> Stream.write Nothing
+writeForest fp fd m s l = Stream.withFileAsOutput fp $ \o -> do
+    writeForest' fp fd m s l $ writeln o
+    Stream.write Nothing o
   where writeln o ln = Stream.write (Just ln) o >> Stream.write (Just "\n") o
 
 

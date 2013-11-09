@@ -8,8 +8,9 @@ copyright:           (c) 2013
 category:            Graphics
 build-type:          Simple
 cabal-version:       >=1.10
-synopsis:
-  Intuitive synthesis of incidental detail using higher-order functions.
+synopsis:            Synthesis of incidental detail
+description:
+  Generates incidental detail on a Maya model by building a Python script.
 
 executable incidental-detail
   hs-source-dirs:   src
