@@ -47,17 +47,21 @@ import Data.Matrix
 
 --------------------------------------------------------------------------------
 mtxToArr :: Matrix Double -> [Double]
-mtxToArr m = [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m,
-               getElem 2 1 m, getElem 2 2 m, getElem 2 3 m,
-               getElem 3 1 m, getElem 3 2 m, getElem 3 3 m ]
+mtxToArr m =
+    [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m
+    , getElem 2 1 m, getElem 2 2 m, getElem 2 3 m
+    , getElem 3 1 m, getElem 3 2 m, getElem 3 3 m
+    ]
 
 
 --------------------------------------------------------------------------------
 mtxToArr4 :: Matrix Double -> [Double]
-mtxToArr4 m = [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m, getElem 1 4 m,
-               getElem 2 1 m, getElem 2 2 m, getElem 2 3 m, getElem 2 4 m,
-               getElem 3 1 m, getElem 3 2 m, getElem 3 3 m, getElem 3 4 m,
-               getElem 4 1 m, getElem 4 2 m, getElem 4 3 m, getElem 4 4 m ]
+mtxToArr4 m =
+    [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m, getElem 1 4 m
+    , getElem 2 1 m, getElem 2 2 m, getElem 2 3 m, getElem 2 4 m
+    , getElem 3 1 m, getElem 3 2 m, getElem 3 3 m, getElem 3 4 m
+    , getElem 4 1 m, getElem 4 2 m, getElem 4 3 m, getElem 4 4 m
+    ]
 
 
 --------------------------------------------------------------------------------
