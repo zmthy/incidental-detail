@@ -26,22 +26,25 @@ module Graphics.DetailGen.Point
   , sphereLoop
   ) where
 
+------------------------------------------------------------------------------
+import Graphics.DetailGen.Vec3
+
 
 ------------------------------------------------------------------------------
 data Point = Point
-    { location :: (Double, Double, Double)
-    , upVector :: (Double, Double, Double)
+    { location :: Vec3
+    , upVector :: Vec3
     } deriving (Show)
 
 
 ------------------------------------------------------------------------------
 stdUp :: Double -> Double -> Double -> Point
-stdUp x y z = Point (x, y, z) (0, 1, 0)
+stdUp x y z = Point (Vec3 x y z) (Vec3 0 1 0)
 
 
 ------------------------------------------------------------------------------
 stdCopy :: Double -> Double -> Double -> Point
-stdCopy x y z = Point (x, y, z) (x, y, z)
+stdCopy x y z = Point (Vec3 x y z) (Vec3 x y z)
 
 
 ------------------------------------------------------------------------------
@@ -99,7 +102,7 @@ pointOnSphere r p a = stdCopy x y z
 
 ------------------------------------------------------------------------------
 pointOnCylinder :: Double -> Double -> Double -> Point
-pointOnCylinder r a h = Point (x, y, z) (x, 0, z)
+pointOnCylinder r a h = Point (Vec3 x y z) (Vec3 x 0 z)
   where
     x = r * cos a
     y = h

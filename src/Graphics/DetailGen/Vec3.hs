@@ -3,14 +3,9 @@
 module Graphics.DetailGen.Vec3
     (
     -- * Vectors
-      Vec3
-    , vx
-    , vy
-    , vz
+      Vec3 (..)
 
     -- * Simple constructors
-    , uniform
-    , constant
     , up
     , fwd
 
@@ -18,7 +13,6 @@ module Graphics.DetailGen.Vec3
     , mtxToArr
     , mtxToArr4
     , multByScalar
-    , cross
     , dotV
     , mag
     , norm
@@ -45,7 +39,7 @@ module Graphics.DetailGen.Vec3
 import Data.Matrix
 
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 mtxToArr :: Matrix Double -> [Double]
 mtxToArr m =
     [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m
@@ -54,7 +48,7 @@ mtxToArr m =
     ]
 
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 mtxToArr4 :: Matrix Double -> [Double]
 mtxToArr4 m =
     [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m, getElem 1 4 m
@@ -64,111 +58,104 @@ mtxToArr4 m =
     ]
 
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 multByScalar :: Double -> Matrix Double -> Matrix Double
 multByScalar s m = fromList 3 3 arr
   where arr = map (*s) (mtxToArr m)
 
 
---------------------------------------------------------------------------------
-type Vec3 = (Double, Double, Double)
+------------------------------------------------------------------------------
+data Vec3 = Vec3
+    { vx :: Double
+    , vy :: Double
+    , vz :: Double
+    } deriving (Eq, Show)
 
+instance Num Vec3 where
+    (+) = vzip (+)
+    (-) = vzip (-)
+    a * b = Vec3
+        (vy a * vz b - vy b * vz a)
+        (vx b * vz a - vx a * vz b)
+        (vx a * vy b - vy a * vx b)
+    abs = vmap abs
+    signum = vmap signum
+    fromInteger i = let d = fromInteger i in Vec3 d d d
 
---------------------------------------------------------------------------------
-vx :: Vec3 -> Double
-vx (x, _, _) = x
-
-
---------------------------------------------------------------------------------
-vy :: Vec3 -> Double
-vy (_, y, _) = y
-
-
---------------------------------------------------------------------------------
-vz :: Vec3 -> Double
-vz (_, _, z) = z
+instance Fractional Vec3 where
+    (/) = error "Cannot divide vectors"
+    recip = error "Cannot divide vectors"
+    fromRational r = let d = fromRational r in Vec3 d d d
 
 
 ------------------------------------------------------------------------------
--- | Build a uniform vector of the given value.
-uniform :: Double -> Vec3
-uniform v = (v, v, v)
+vmap :: (Double -> Double) -> Vec3 -> Vec3
+vmap f (Vec3 a b c) = Vec3 (f a) (f b) (f c)
 
 
 ------------------------------------------------------------------------------
--- | A constant vector under multiplication.
-constant :: Vec3
-constant = (1, 1, 1)
+vzip :: (Double -> Double -> Double) -> Vec3 -> Vec3 -> Vec3
+vzip f (Vec3 a b c) (Vec3 x y z) = Vec3 (f a x) (f b y) (f c z)
 
 
 ------------------------------------------------------------------------------
 -- | The up vector.
 up :: Vec3
-up = (0, 1, 0)
+up = Vec3 0 1 0
 
 
 ------------------------------------------------------------------------------
 -- | The forward vector.
 fwd :: Vec3
-fwd = (1, 0, 0)
+fwd = Vec3 1 0 0
 
 
---------------------------------------------------------------------------------
-cross :: Vec3 -> Vec3 -> Vec3
-cross a b = (x, y, z)
-  where x = vy a * vz b - vy b * vz a
-        y = vx b * vz a - vx a * vz b
-        z = vx a * vy b - vy a * vx b
-
-
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 dotV :: Vec3 -> Vec3 -> Double
 dotV a b = vx a * vx b + vy a * vy b + vz a * vz b
 
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 mag :: Vec3 -> Double
 mag v = sqrt $ vx v ** 2 + vy v ** 2 + vz v ** 2
 
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 norm :: Vec3 -> Vec3
-norm (0, 0, 0) = (0, 0, 0)
-norm v = (x, y, z)
-  where x = vx v / m
-        y = vy v / m
-        z = vz v / m
-        m = mag v
+norm (Vec3 0 0 0) = Vec3 0 0 0
+norm v            = vmap (/ mag v) v
 
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 angleBetween :: Vec3 -> Vec3 -> Double
 angleBetween vA vB = acos $ dotV (norm vA) (norm vB)
 
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 axisBetween :: Vec3 -> Vec3 -> Vec3
 axisBetween vA vB
-    | cross vA vB == (0, 0, 0) = (0, 0, 1)
-    | otherwise = norm $ cross vA vB
+    | vA * vB == Vec3 0 0 0 = Vec3 0 0 1
+    | otherwise = norm $ vA * vB
 
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 skewAxis :: Vec3 -> Matrix Double
 skewAxis a = fromList 3 3 [ 0,     -vz a, vy a,
                             vz a,  0,     -vx a,
                             -vy a, vx a,  0     ]
 
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 addHomo :: Matrix Double -> Matrix Double
-addHomo m = fromList 4 4 [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m,  0,
-                            getElem 2 1 m, getElem 2 2 m, getElem 2 3 m, 0,
-                            getElem 3 1 m, getElem 3 2 m, getElem 3 3 m, 0,
-                            0,             0,             0,             1 ]
+addHomo m = fromList 4 4
+    [ getElem 1 1 m, getElem 1 2 m, getElem 1 3 m, 0
+    , getElem 2 1 m, getElem 2 2 m, getElem 2 3 m, 0
+    , getElem 3 1 m, getElem 3 2 m, getElem 3 3 m, 0
+    , 0,             0,             0,             1
+    ]
 
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 rotBetween :: Vec3 -> Vec3 -> Matrix Double
 rotBetween a b = addHomo $ eye + (sinM + cosM)
   where eye    = identity 3
@@ -180,11 +167,12 @@ rotBetween a b = addHomo $ eye + (sinM + cosM)
 
 ------------------------------------------------------------------------------
 translate :: Vec3 -> Matrix Double
-translate (x, y, z) = fromList 4 4 arr
-  where arr = [ 1, 0, 0, x,
-                0, 1, 0, y,
-                0, 0, 1, z,
-                0, 0, 0, 1 ]
+translate (Vec3 x y z) = fromList 4 4
+    [ 1, 0, 0, x
+    , 0, 1, 0, y
+    , 0, 0, 1, z
+    , 0, 0, 0, 1
+    ]
 
 
 ------------------------------------------------------------------------------
@@ -224,11 +212,12 @@ rotate _ _ = identity 4
 
 ------------------------------------------------------------------------------
 scale :: Vec3 -> Matrix Double
-scale (x, y, z) = fromList 4 4 arr
-  where arr = [ x, 0, 0, 0,
-                0, y, 0, 0,
-                0, 0, z, 0,
-                0, 0, 0, 1 ]
+scale (Vec3 x y z) = fromList 4 4
+    [ x, 0, 0, 0
+    , 0, y, 0, 0
+    , 0, 0, z, 0
+    , 0, 0, 0, 1
+    ]
 
 
 ------------------------------------------------------------------------------
@@ -238,7 +227,7 @@ dotM = multStd
 
 ------------------------------------------------------------------------------
 toVec3 :: Matrix Double -> Vec3
-toVec3 m = (getElem 1 1 m, getElem 2 1 m, getElem 3 1 m)
+toVec3 m = Vec3 (getElem 1 1 m) (getElem 2 1 m) (getElem 3 1 m)
 
 
 ------------------------------------------------------------------------------
